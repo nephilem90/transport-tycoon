@@ -15,7 +15,7 @@ export class Container {
 }
 
 export class Location {
-    readonly containers: Container[];
+    readonly containers: Container[] = [];
 
     private _roads: Route[];
 
@@ -64,11 +64,33 @@ export class Map {
 }
 
 export class Transport {
-    private trip: Location[];
+    //todo aggiungere pesi
+    run(): void {
+        if (this.source === this.actual && this.container === undefined) {
+            this.trip = this.createTrip(
+                this.setContainerFromActual()?.destination ?? this.source,
+            );
+        }
+        this.actual = this.trip.shift()?.to ?? this.actual;
+        if (this.actual === this.container?.destination) {
+            this.actual.addContainer(this.container);
+            this.container = undefined;
+        }
+    }
+
+    private setContainerFromActual() {
+        this.container = this.source.containers?.shift();
+        return this.container;
+    }
+
+    private trip: Route[];
+    private actual: Location;
+    private container?: Container;
 
     constructor(
         private source: Location,
     ) {
+        this.actual = source;
     }
 
     createTrip(goal: Location): Route[] {
