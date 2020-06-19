@@ -1,4 +1,4 @@
-import {Map, Road, Transport} from "./app";
+import {Map, Road, Transport} from "./location";
 
 const map = Map.initialize();
 it('dovrebbe tornare un array di strade per B', () => {

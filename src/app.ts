@@ -1,17 +1,17 @@
 export class Road {
-    get to(): App {
+    get to(): Location {
         return this._to;
     }
 
-    set to(value: App) {
+    set to(value: Location) {
         this._to = value;
     }
 
-    constructor(private _to: App) {
+    constructor(private _to: Location) {
     }
 }
 
-export class App {
+export class Location {
     private _roads: Road[];
 
     constructor(private _name: string) {
@@ -31,35 +31,35 @@ export class App {
 }
 
 export class Map {
-    get factory(): App {
+    get factory(): Location {
         return this._factory;
     }
 
-    get warehouseA(): App {
+    get warehouseA(): Location {
         return this._warehouseA;
     }
 
-    get warehouseB(): App {
+    get warehouseB(): Location {
         return this._warehouseB;
     }
 
-    get port(): App {
+    get port(): Location {
         return this._port;
     }
 
     private constructor(
-        private _factory: App,
-        private _warehouseA: App,
-        private _warehouseB: App,
-        private _port: App,
+        private _factory: Location,
+        private _warehouseA: Location,
+        private _warehouseB: Location,
+        private _port: Location,
     ) {
     }
 
     static initialize() {
-        const port = new App('port');
-        const warehouseA = new App('a');
-        const warehouseB = new App('b');
-        const factory = new App('factory');
+        const port = new Location('port');
+        const warehouseA = new Location('a');
+        const warehouseB = new Location('b');
+        const factory = new Location('factory');
 
         port.roads = [new Road(warehouseA), new Road(factory)];
         warehouseA.roads = [new Road(port)];
@@ -70,23 +70,23 @@ export class Map {
 }
 
 export class Transport {
-    private actual: App;
-    private trip: App[];
+    private actual: Location;
+    private trip: Location[];
 
     constructor(
-        private source: App
+        private source: Location
     ) {
     }
 
-    createTrip(goal: App): Road[] {
-        return this.calculateTripe(this.source, goal, [], []);
+    createTrip(goal: Location): Road[] {
+        return this.calculateTrip(this.source, goal, [], []);
     }
 
-    private calculateTripe(actual: App, goal: App, visits: Road[], visitsLocation: App[]): Road[] {
+    private calculateTrip(actual: Location, goal: Location, visitedRoads: Road[], visitLocations: Location[]): Road[] {
         if (actual == goal) {
-            return visits;
+            return visitedRoads;
         }
-        const notVisited: Road[] = actual.roads.filter((road: Road) => visitsLocation.indexOf(road.to) === -1);
+        const notVisited: Road[] = actual.roads.filter((road: Road) => visitLocations.indexOf(road.to) === -1);
         //caso di errore
         if (notVisited.length === 0) {
             return [];
@@ -94,7 +94,7 @@ export class Transport {
         let tmp: Road[] = [];
         notVisited.forEach((road: Road) => {
             if (tmp.length === 0) {
-                tmp = this.calculateTripe(road.to, goal, visits.concat([road]), visitsLocation.concat(actual));
+                tmp = this.calculateTrip(road.to, goal, visitedRoads.concat([road]), visitLocations.concat(actual));
             }
         });
         return tmp;
