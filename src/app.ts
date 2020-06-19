@@ -1,4 +1,7 @@
-export class Road {
+export abstract class Route {
+    constructor(private _to: Location) {
+    }
+
     get to(): Location {
         return this._to;
     }
@@ -6,13 +9,22 @@ export class Road {
     set to(value: Location) {
         this._to = value;
     }
-
-    constructor(private _to: Location) {
-    }
 }
 
+export class Land extends Route {
+}
+export class Sea extends Route {
+}
+
+export class Container {
+    constructor(private _destination: Location) {
+    }
+    get destination(): Location {
+        return this._destination;
+    }
+}
 export class Location {
-    private _roads: Road[];
+    private _roads: Route[];
 
     constructor(private _name: string) {
     }
@@ -21,16 +33,16 @@ export class Location {
         return this._name;
     }
 
-    get roads(): Road[] {
+    get roads(): Route[] {
         return this._roads;
     }
 
-    set roads(value: Road[]) {
+    set roads(value: Route[]) {
         this._roads = value;
     }
 
     getUnusedRoadsFromVisitedLocations(locations: Location[]) {
-        return this.roads.filter(road => locations.indexOf(road.to) === -1)
+        return this.roads.filter(road => locations.indexOf(road.to) === -1);
     }
 }
 
@@ -65,28 +77,27 @@ export class Map {
         const warehouseB = new Location('b');
         const factory = new Location('factory');
 
-        port.roads = [new Road(warehouseA), new Road(factory)];
-        warehouseA.roads = [new Road(port)];
-        warehouseB.roads = [new Road(factory)];
-        factory.roads = [new Road(warehouseB), new Road(port)];
+        port.roads = [new Sea(warehouseA), new Land(factory)];
+        warehouseA.roads = [new Sea(port)];
+        warehouseB.roads = [new Land(factory)];
+        factory.roads = [new Land(warehouseB), new Land(port)];
         return new Map(factory, warehouseA, warehouseB, port);
     }
 }
 
 export class Transport {
-    private actual: Location;
     private trip: Location[];
 
     constructor(
-        private source: Location
+        private source: Location,
     ) {
     }
 
-    createTrip(goal: Location): Road[] {
+    createTrip(goal: Location): Route[] {
         return this.calculateTrip(this.source, goal, [], []);
     }
 
-    private calculateTrip(actual: Location, goal: Location, visitedRoads: Road[], visitedLocations: Location[]): Road[] {
+    private calculateTrip(actual: Location, goal: Location, visitedRoads: Route[], visitedLocations: Location[]): Route[] {
         if (actual == goal) {
             return visitedRoads;
         }
