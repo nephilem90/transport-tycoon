@@ -28,6 +28,10 @@ export class Location {
     set roads(value: Road[]) {
         this._roads = value;
     }
+
+    getUnusedRoadsFromVisitedLocations(locations: Location[]) {
+        return this.roads.filter(road => locations.indexOf(road.to) === -1)
+    }
 }
 
 export class Map {
@@ -82,21 +86,12 @@ export class Transport {
         return this.calculateTrip(this.source, goal, [], []);
     }
 
-    private calculateTrip(actual: Location, goal: Location, visitedRoads: Road[], visitLocations: Location[]): Road[] {
+    private calculateTrip(actual: Location, goal: Location, visitedRoads: Road[], visitedLocations: Location[]): Road[] {
         if (actual == goal) {
             return visitedRoads;
         }
-        const notVisited: Road[] = actual.roads.filter((road: Road) => visitLocations.indexOf(road.to) === -1);
-        //caso di errore
-        if (notVisited.length === 0) {
-            return [];
-        }
-        let tmp: Road[] = [];
-        notVisited.forEach((road: Road) => {
-            if (tmp.length === 0) {
-                tmp = this.calculateTrip(road.to, goal, visitedRoads.concat([road]), visitLocations.concat(actual));
-            }
-        });
-        return tmp;
+        return actual.getUnusedRoadsFromVisitedLocations(visitedLocations)
+            .map(road => this.calculateTrip(road.to, goal, visitedRoads.concat([road]), visitedLocations.concat(actual)))
+            .find(roads => roads.length !== 0) ?? [];
     }
 }
