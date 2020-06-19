@@ -1,37 +1,31 @@
 export abstract class Route {
-    constructor(private _to: Location) {
-    }
-
-    get to(): Location {
-        return this._to;
-    }
-
-    set to(value: Location) {
-        this._to = value;
+    constructor(readonly to: Location) {
     }
 }
 
 export class Land extends Route {
 }
+
 export class Sea extends Route {
 }
 
 export class Container {
-    constructor(private _destination: Location) {
-    }
-    get destination(): Location {
-        return this._destination;
+    constructor(readonly destination: Location) {
     }
 }
+
 export class Location {
+    readonly containers: Container[];
+
     private _roads: Route[];
 
-    constructor(private _name: string) {
+    constructor(private name: string) {
     }
 
-    get name(): string {
-        return this._name;
+    addContainer(container: Container): void {
+        this.containers.push(container);
     }
+
 
     get roads(): Route[] {
         return this._roads;
@@ -47,27 +41,11 @@ export class Location {
 }
 
 export class Map {
-    get factory(): Location {
-        return this._factory;
-    }
-
-    get warehouseA(): Location {
-        return this._warehouseA;
-    }
-
-    get warehouseB(): Location {
-        return this._warehouseB;
-    }
-
-    get port(): Location {
-        return this._port;
-    }
-
     private constructor(
-        private _factory: Location,
-        private _warehouseA: Location,
-        private _warehouseB: Location,
-        private _port: Location,
+        readonly factory: Location,
+        readonly warehouseA: Location,
+        readonly warehouseB: Location,
+        readonly port: Location,
     ) {
     }
 
