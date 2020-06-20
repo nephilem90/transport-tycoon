@@ -1,5 +1,5 @@
 export abstract class Route {
-    constructor(readonly to: Location) {
+    constructor(readonly to: Location, readonly time: number) {
     }
 }
 
@@ -55,24 +55,33 @@ export class Map {
         const warehouseB = new Location('b');
         const factory = new Location('factory');
 
-        port.roads = [new Sea(warehouseA), new Land(factory)];
-        warehouseA.roads = [new Sea(port)];
-        warehouseB.roads = [new Land(factory)];
-        factory.roads = [new Land(warehouseB), new Land(port)];
+        port.roads = [new Sea(warehouseA, 4), new Land(factory, 1)];
+        warehouseA.roads = [new Sea(port, 4)];
+        warehouseB.roads = [new Land(factory, 5)];
+        factory.roads = [new Land(warehouseB, 5), new Land(port, 1)];
         return new Map(factory, warehouseA, warehouseB, port);
     }
 }
 
 export class Transport {
-    //todo aggiungere pesi
+    //todo gestire i tipi di route
     run(): void {
+        if (this.waitFor > 0) {
+            this.waitFor--;
+            if (this.waitFor !== 0) {
+                return;
+            }
+        }
         if (this.source === this.actual && this.container === undefined) {
             this.trip = this.createTrip(
                 this.setContainerFromActual()?.destination ?? this.source,
             );
         }
-        this.actual = this.trip.shift()?.to ?? this.actual;
-        if (this.actual === this.container?.destination) {
+        const road = this.trip.shift();
+        this.actual = road?.to ?? this.actual;
+        this.waitFor = road?.time ?? 0;
+        this.waitFor !== 0 && this.waitFor--;
+        if (this.waitFor === 0 && this.actual === this.container?.destination) {
             this.actual.addContainer(this.container);
             this.container = undefined;
         }
@@ -86,6 +95,7 @@ export class Transport {
     private trip: Route[];
     private actual: Location;
     private container?: Container;
+    private waitFor = 0;
 
     constructor(
         private source: Location,
