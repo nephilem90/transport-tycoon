@@ -15,8 +15,7 @@ export class Container {
 }
 
 export class Location {
-    readonly containers: Container[] = [];
-
+    private readonly containers: Container[] = [];
     private _roads: Route[];
 
     constructor(private name: string) {
@@ -37,6 +36,14 @@ export class Location {
 
     getUnusedRoadsFromVisitedLocations(locations: Location[]) {
         return this.roads.filter(road => locations.indexOf(road.to) === -1);
+    }
+
+    getNextContainerIfPresent(): Container | undefined {
+        return this.containers.shift();
+    }
+
+    isPresent(container: Container): boolean {
+        return this.containers.includes(container)
     }
 }
 
@@ -88,7 +95,7 @@ export class Transport {
     }
 
     private setContainerFromActual() {
-        this.container = this.source.containers?.shift();
+        this.container = this.source.getNextContainerIfPresent()
         return this.container;
     }
 

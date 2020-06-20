@@ -11,18 +11,20 @@ it('dovrebbe tornare un array di strade per A', () => {
 });
 
 it('calcolo tempo', () => {
-    map.factory.addContainer(new Container(map.warehouseB));
+    const container = new Container(map.warehouseB);
+
+    map.factory.addContainer(container);
     const truck = new Transport(map.factory);
-    expect(map.warehouseB.containers.length).toBe(0);
+    expect(map.warehouseB.isPresent(container)).toBeFalsy();
     truck.run();
-    expect(map.warehouseB.containers.length).toBe(0);
+    expect(map.warehouseB.isPresent(container)).toBeFalsy();
     truck.run();
-    expect(map.warehouseB.containers.length).toBe(0);
+    expect(map.warehouseB.isPresent(container)).toBeFalsy();
     truck.run();
-    expect(map.warehouseB.containers.length).toBe(0);
+    expect(map.warehouseB.isPresent(container)).toBeFalsy();
     truck.run();
-    expect(map.warehouseB.containers.length).toBe(0);
+    expect(map.warehouseB.isPresent(container)).toBeFalsy();
     truck.run();
-    expect(map.warehouseB.containers.length).toBe(1);
+    expect(map.warehouseB.isPresent(container)).toBe(true);
 });
 
