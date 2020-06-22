@@ -70,7 +70,7 @@ export class Map {
     }
 }
 
-export class Transport {
+export abstract class Transport {
     //todo gestire i tipi di route
     run(): void {
         if (this.waitFor > 0) {
@@ -84,11 +84,17 @@ export class Transport {
                 this.setContainerFromActual()?.destination ?? this.source,
             );
         }
+
         const road = this.trip.shift();
-        this.actual = road?.to ?? this.actual;
-        this.waitFor = road?.time ?? 0;
-        this.waitFor !== 0 && this.waitFor--;
-        if (this.waitFor === 0 && this.actual === this.container?.destination) {
+        if (this.canAdvance(road)) {
+            this.actual = road.to;
+            this.waitFor = road.time;
+            this.waitFor--;
+        } else {
+            this.waitFor = 0;
+        }
+
+        if (this.container && this.waitFor === 0) {
             this.actual.addContainer(this.container);
             this.container = undefined;
         }
@@ -122,4 +128,14 @@ export class Transport {
             .map(road => this.calculateTrip(road.to, goal, visitedRoads.concat([road]), visitedLocations.concat(actual)))
             .find(roads => roads.length !== 0) ?? [];
     }
+
+    abstract canAdvance(next: Route | undefined): next is Route
 }
+
+export class Truck extends Transport {
+
+    canAdvance(next: Route | undefined): next is Route {
+        return next instanceof Land
+    }
+}
+
